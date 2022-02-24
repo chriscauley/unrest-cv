@@ -1,8 +1,7 @@
 import cv2
 import random
 
-def wait_key(max_time=60000, default=None):
-    delay = 500
+def wait_key(max_time=60000, default=None, delay = 500):
     time = 0
     while time < max_time:
         pressed = cv2.waitKey(delay)

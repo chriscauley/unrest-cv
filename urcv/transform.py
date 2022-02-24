@@ -22,7 +22,7 @@ def crop_ratio(image, bounds):
     return crop(image, (x, y, w, h))
 
 
-def threshold(image, value, max_value=255, type=cv2.THRESH_BINARY_INV):
+def threshold(image, value=127, max_value=255, type=cv2.THRESH_BINARY):
     gray = image
     if len(image.shape) == 3:
         gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
