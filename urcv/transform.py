@@ -1,10 +1,10 @@
 import cv2
 
 
-def scale(image, scale):
+def scale(image, scale, interpolation=cv2.INTER_NEAREST):
     w = int(image.shape[1] * scale)
     h = int(image.shape[0] * scale)
-    return cv2.resize(image, (w, h))
+    return cv2.resize(image, (w, h), interpolation=interpolation)
 
 
 def crop(image, bounds):
