@@ -4,6 +4,7 @@ from . import draw
 from . import filter
 from . import hsv
 from . import stack
+from . import template
 from . import text
 from . import transform
 from .input import wait_key, get_scaled_roi
