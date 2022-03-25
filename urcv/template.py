@@ -2,14 +2,15 @@ import cv2
 from imutils.object_detection import non_max_suppression
 import numpy as np
 
-def match(image, template, threshold=0.9, scale=16):
+def match(image, template, threshold=0.9):
     result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+
     (yCoords, xCoords) = np.where(result >= threshold)
     (tH, tW) = template.shape[:2]
 
-    rects = [(x, y, x + tW, y + tH) for (x, y) in zip(xCoords, yCoords)]
-    pick = non_max_suppression(np.array(rects))
-    return [[round(x/scale), round(y/scale)] for (x, y, _w, _h) in rects]
+    coords = [(x, y, x + tW, y + tH) for (x, y) in zip(xCoords, yCoords)]
+    pick = non_max_suppression(np.array(coords))
+    return coords
 
 
 def union(image, template):
