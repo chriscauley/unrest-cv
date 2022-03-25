@@ -28,7 +28,7 @@ def paste(back, front, x, y):
     back[y1:y2, x1:x2] = front
 
 
-def paste_alpha(back, front, x,y):
+def paste_alpha(back, front, x, y):
     """
     Paste front onto back at x, y while preserving alpha channel
     Will throw error if target is out of bounds for back image
@@ -37,13 +37,21 @@ def paste_alpha(back, front, x,y):
     if front.shape[2] == 3:
         front = cv2.cvtColor(back, cv2.COLOR_BGR2BGRA)
 
+    y_buffer = back.shape[0] - front.shape[0] - y
+    if y_buffer < 0:
+        print('cropping y')
+        front = front[:y_buffer]
+
+    x_buffer = back.shape[1] - front.shape[1] - x
+    if x_buffer < 0:
+        print('cropping x')
+        front = front[:,:-x_buffer]
+
     # crop the overlay from both images
     bh, bw = back.shape[:2]
     fh, fw = front.shape[:2]
     x1, x2 = max(x, 0), min(x+fw, bw)
     y1, y2 = max(y, 0), min(y+fh, bh)
-    if x2 > bw or y2 > bh:
-        raise ValueError("Unable to paste image because [{x2}, {y2}] is oob for [{bw}, {bh}])")
     back_cropped = back[y1:y2, x1:x2]
 
     alpha_front = front[:,:,3:4] / 255
