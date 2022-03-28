@@ -10,7 +10,7 @@ def match(image, template, threshold=0.9):
 
     coords = [(x, y, x + tW, y + tH) for (x, y) in zip(xCoords, yCoords)]
     pick = non_max_suppression(np.array(coords))
-    return coords
+    return pick
 
 
 def union(image, template):
