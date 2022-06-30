@@ -1,4 +1,22 @@
 import cv2
+import numpy as np
+
+
+def autocrop_zeros(image):
+    image = image.copy()
+    while np.sum(image[-1]) == 0:
+        # bottom
+        image = image[:-1]
+    while np.sum(image[0]) == 0:
+        # top
+        image = image[1:]
+    while np.sum(image[:,-1]) == 0:
+        # right
+        image = image[:,:-1]
+    while np.sum(image[:,0]) == 0:
+        # left
+        image = image[:,1:]
+    return image
 
 
 def scale(image, scale, interpolation=cv2.INTER_NEAREST):
