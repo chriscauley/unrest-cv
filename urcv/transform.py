@@ -27,6 +27,15 @@ def scale(image, scale, interpolation=cv2.INTER_NEAREST):
 
 def crop(image, bounds):
     x, y, w, h = bounds
+
+    # if x/y are negative adjust w/h and set x/y to zero
+    if x < 0:
+        w += x
+        x = 0
+    if y < 0:
+        h += y
+        y = 0
+
     return image[y:y+h,x:x+w]
 
 
