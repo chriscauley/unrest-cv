@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from pathlib import Path
 
@@ -25,6 +26,8 @@ def top_color(image, exclude=[(0,0,0), (255,255,255)]):
             return (b, g, r)
 
 def force_alpha(image):
+    if len(image.shape) == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGRA)
     if image.shape[2] == 3:
         return np.dstack([image, np.full(image.shape[:2], 255, dtype=np.uint8)])
     return image
