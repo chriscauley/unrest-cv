@@ -11,8 +11,7 @@ from . import text
 from . import transform
 from .input import wait_key, get_scaled_roi
 
-with (Path(__file__).parent / './__version__').open() as f:
-    __version__ = f.read()
+__version__ = '0.0.3'
 
 def count_colors(image):
     reshaped = image.reshape(-1, image.shape[-1])

@@ -4,11 +4,12 @@ import os
 from pathlib import Path
 import pkg_resources
 from setuptools import setup, find_namespace_packages
+import re
 
 os.environ['PYTHON_EGG_CACHE'] = '.eggs'
 
-with Path("urcv/__version__").open() as f:
-    version = f.read()
+with Path("urcv/__init__.py").open() as f:
+    version = re.search('__version__\s*=\s*[\'"](.*)[\'"]\n', f.read()).group(1)
 
 with Path("requirements.txt").open() as f:
     install_requires = [
