@@ -11,11 +11,12 @@ os.environ['PYTHON_EGG_CACHE'] = '.eggs'
 with Path("urcv/__init__.py").open() as f:
     version = re.search('__version__\s*=\s*[\'"](.*)[\'"]\n', f.read()).group(1)
 
-with Path("requirements.txt").open() as f:
-    install_requires = [
-        str(requirement)
-        for requirement in pkg_resources.parse_requirements(f)
-    ]
+install_requires = [
+    'imutils==0.5.4',
+    'opencv_python==4.5.5.62',
+    'pillow==9.0.1',
+    'scikit-learn==1.0.2',
+]
 
 setup(
     name="urcv",
