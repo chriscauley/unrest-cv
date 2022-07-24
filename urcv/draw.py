@@ -45,6 +45,7 @@ def paste(back, front, x1, y1):
         front = front[:-dy]
 
     back[y1:y2, x1:x2] = front
+    return back
 
 
 def paste_alpha(back, front, x, y):
@@ -85,3 +86,28 @@ def paste_alpha(back, front, x, y):
     # replace an area in back with overlay
     back[y1:y2, x1:x2, :3] = alpha_front * front[:,:,:3] + (1-alpha_front) * back_cropped[:,:,:3]
     back[y1:y2, x1:x2, 3:4] = (alpha_front + alpha_back) / (1 + alpha_front*alpha_back) * 255
+
+
+def paste_expandable(back, front, x, y, default=None, alpha=False):
+    """
+    Pastes front onto back.
+    The canvas will be expanded if the front image falls outside of the bounds of back.
+    """
+    h, w, *rest = back.shape
+    x0 = y0 = 0
+    if x < 0:
+        w -= x
+        x0 = -x
+    if y < 0:
+        h -= y
+        y0 = -y
+    w = max(w, x + front.shape[1], back.shape[1])
+    h = max(h, y + front.shape[0], back.shape[0])
+    canvas = np.zeros((h, w, *rest), dtype=back.dtype)
+    if default is not None:
+        canvas[:] = default
+
+    func = paste_alpha if alpha else paste
+    func(canvas, back, x0, y0)
+    func(canvas, front, x-x0, y-y0)
+    return canvas
