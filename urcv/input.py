@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import random
 
 special_keys = {
@@ -23,10 +24,16 @@ def wait_key(max_time=60000, default=None, delay = 500):
     return default
 
 
-def get_scaled_roi(image, scale):
-    w0 = image.shape[1] * scale
-    h0 = image.shape[0] * scale
-    name = f'ROI_{random.random()}'
+def _scale(image, s):
+    w, h = image.shape[:2]
+    return cv2.resize(image, (w*s, h*s), interpolation=cv2.INTER_NEAREST)
+
+
+def get_scaled_roi(image, scale, name):
+    w0 = int(image.shape[1] * scale)
+    h0 = int(image.shape[0] * scale)
+    if name is None:
+        name = f'ROI_{random.random()}'
     x, y, w, h = cv2.selectROI(name, cv2.resize(image, (w0, h0), interpolation=cv2.INTER_NEAREST))
     cv2.destroyWindow(name)
 
@@ -39,25 +46,85 @@ def get_scaled_roi(image, scale):
     # return x, y, w, h based off scaled and rounded values
     return [x1, y1, x2-x1, y2-y1]
 
-def get_exact_roi(image):
-    _image = image.copy()
-    x0, y0, w0, h0 = get_scaled_roi(image, 1)
-    _miny1 = max(y0-50, 0)
-    _minx1 = max(x0-50, 0)
-    topleft = _image[_miny1:y0+50,_minx1:x0+50]
-    x1, y1, _, _ = get_scaled_roi(topleft, 10)
+def get_exact_roi(image, name=None):
+    image = image.copy()
+    initial_scale = 1
+    if image.shape[0] > 1000 or image.shape[1] > 1000:
+        initial_scale = 0.75
+    coords = np.array(get_scaled_roi(image, initial_scale, name=name))
 
-    x1 += _minx1
-    y1 += _miny1
+    confirm_topleft(image, coords)
+    confirm_botright(image, coords)
+    return coords.tolist()
 
-    x2 = x0 + w0
-    y2 = y0 + h0
-    _minx2 = x2-50
-    _miny2 = y2-50
-    bottomright = _image[_miny2:y2+50,_minx2:x2+50]
-    x2, y2, w2, h2 = get_scaled_roi(bottomright, 20)
+def keypress():
+    pressed = wait_key()
+    if pressed == 'up':
+        return [0, -1]
+    elif pressed == 'down':
+        return [0, 1]
+    elif pressed == 'left':
+        return [-1, 0]
+    elif pressed == 'right':
+        return [1, -0]
+    elif pressed == 'q':
+        exit()
+    else:
+        print(pressed)
 
-    x2 += _minx2 + w2
-    y2 += _miny2 + h2
+def enforce_bounds(image, coords):
+    coords[0] = max(coords[0], 0)
+    coords[1] = max(coords[1], 0)
+    coords[2] = min(image.shape[1] - coords[0], coords[2])
+    coords[3] = min(image.shape[0] - coords[1], coords[3])
 
-    return [x1, y1, x2 - x1, y2 - y1]
+def confirm_botright(image, coords):
+    while True:
+        enforce_bounds(image, coords)
+        x, y, w, h = coords
+        x2 = x + w
+        y2 = y + h
+
+        botright = image.copy()
+        botright = _rect(botright, coords)
+        _minx2 = max(x2-50, 0)
+        _miny2 = max(y2-50, 0)
+        botright = botright[_miny2:y2+50,_minx2:x2+50]
+
+        botright = _scale(botright, 4)
+        cv2.imshow('Confirm botright', botright)
+        delta = keypress()
+        if delta is not None:
+            coords[2:] += delta
+        else:
+            break
+    cv2.destroyWindow('Confirm botright')
+
+def confirm_topleft(image, coords):
+    while True:
+        enforce_bounds(image, coords)
+        x, y, _, _ = coords
+        topleft = image.copy()
+        topleft = _rect(topleft, coords)
+        _miny1 = max(y - 50, 0)
+        _minx1 = max(x - 50, 0)
+        topleft = topleft[_miny1:y+50,_minx1:x+50]
+
+        cv2.imshow('Confirm topleft', _scale(topleft, 4))
+        delta = keypress()
+        if delta is not None:
+            coords[:2] += delta
+        else:
+            break
+    cv2.destroyWindow('Confirm topleft')
+
+def _rect(image, coords):
+    overlay = image.copy()
+    x, y, w, h = coords
+
+    cv2.rectangle(overlay, (x, y), (x+w, y+h), (0, 200, 0), -1)  # A filled rectangle
+
+    alpha = 0.4  # Transparency factor.
+
+    # Following line overlays transparent rectangle over the image
+    return cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
