@@ -8,12 +8,12 @@ def many(images, text=None, border=False, text_color=(255,255,255)):
     if h < 2:
         return np.hstack(images)
 
-    (ih, iw, ic) = images[0].shape
-    result = np.zeros((h*ih, w*iw, ic), dtype=np.uint8)
+    (ih, iw, *rest) = images[0].shape
+    result = np.zeros((h*ih, w*iw, *rest), dtype=np.uint8)
     for index, image in enumerate(images):
         x0 = iw * (index % w)
         y0 = ih * int(np.floor(index / w))
-        result[y0:y0+ih,x0:x0+iw,:] = image
+        result[y0:y0+ih,x0:x0+iw] = image
     for index, image in enumerate(images):
         x0 = iw * (index % w)
         y0 = ih * int(np.floor(index / w))
