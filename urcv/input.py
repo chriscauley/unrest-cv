@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 import random
 
 special_keys = {
@@ -56,7 +57,9 @@ def get_exact_roi(get_image, name=None, size=200):
         if image.shape[0] > 1000 or image.shape[1] > 1000:
             initial_scale = 0.75
         coords = np.array(get_scaled_roi(image, initial_scale, name=name))
-        if coords is None:
+        if coords is None or 0 in coords[2:]:
+            print(coords[2:])
+            time.sleep(0.5)
             continue
 
         confirm_topleft(image, coords, size)
@@ -102,7 +105,7 @@ def confirm_botright(image, coords, size):
         delta = keypress()
         if delta is not None:
             coords[2:] += delta
-        elif delta is 'delete':
+        elif delta == 'delete':
             # set w/h to zero to start over
             coords[2] = coords[3] = 0
         else:

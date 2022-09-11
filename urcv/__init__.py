@@ -40,6 +40,14 @@ def replace_color(image, color1, color2):
     image[:,:,:3][mask] = [r2, g2, b2]
 
 
+def isolate_color(image, color):
+    s = np.sum(image)
+    r1, g1, b1 = color[:3]
+    red, green, blue = image[:,:,0], image[:,:,1], image[:,:,2]
+    mask = (red != r1) | (green != g1) | (blue != b1)
+    image[mask] = 0
+
+
 def remove_color_alpha(image, color1):
     r1, g1, b1 = color1
 
