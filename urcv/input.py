@@ -46,7 +46,7 @@ def get_scaled_roi(image, scale, name):
     # return x, y, w, h based off scaled and rounded values
     return [x1, y1, x2-x1, y2-y1]
 
-def get_exact_roi(get_image, name=None, size=100):
+def get_exact_roi(get_image, name=None, size=200):
     if not callable(get_image):
         # user passed in an actual image (np array)
         get_image = get_image.copy

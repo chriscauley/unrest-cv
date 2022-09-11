@@ -2,20 +2,54 @@ import cv2
 import numpy as np
 
 
-def autocrop_zeros(image):
+def autocrop_zeros(image, return_bounds=False):
+    x, y, w, h = 0, 0, image.shape[1], image.shape[0]
     image = image.copy()
     while np.sum(image[-1]) == 0:
         # bottom
         image = image[:-1]
+        h -= 1
     while np.sum(image[0]) == 0:
         # top
         image = image[1:]
+        h -= 1
+        y += 1
     while np.sum(image[:,-1]) == 0:
         # right
         image = image[:,:-1]
+        w -= 1
     while np.sum(image[:,0]) == 0:
         # left
         image = image[:,1:]
+        w -= 1
+        x += 1
+    if return_bounds:
+        return image, [x, y, w, h]
+    return image
+
+def autocrop_nonzeros(image, return_bounds=False):
+    x, y, w, h = 0, 0, image.shape[1], image.shape[0]
+    image = image.copy()
+    while np.sum(image[-1]) != 0:
+        # bottom
+        image = image[:-1]
+        h -= 1
+    while np.sum(image[0]) != 0:
+        # top
+        image = image[1:]
+        h -= 1
+        y += 1
+    while np.sum(image[:,-1]) != 0:
+        # right
+        image = image[:,:-1]
+        w -= 1
+    while np.sum(image[:,0]) != 0:
+        # left
+        image = image[:,1:]
+        w -= 1
+        x += 1
+    if return_bounds:
+        return image, [x, y, w, h]
     return image
 
 
